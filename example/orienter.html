@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>Orienter</title>
+</head>
+<body>
+<div id="main"></div>
+<script src="css3d.min.js"></script>
+<script src="../orienter.min.js"></script>
+<script>
+    //创建场景
+    var s = new C3D.Stage();
+    s.size(window.innerWidth, window.innerHeight).material({
+        color : "#cccccc"
+    }).update();
+    document.getElementById('main').appendChild(s.el);
+
+    //创建1个立方体放入场景
+    var c = new C3D.Skybox();
+    c.size(1024).position(0, 0, 0).material({
+        front : "images/cube_FR.jpg",
+        back : "images/cube_BK.jpg",
+        left : "images/cube_LF.jpg",
+        right : "images/cube_RT.jpg",
+        up : "images/cube_UP.jpg",
+        down : "images/cube_DN.jpg"
+    }).update();
+    s.addChild(c);
+
+    //响应屏幕调整尺寸
+    function resize() {
+        s.size(window.innerWidth, window.innerHeight).update();
+    };
+    window.onresize = function() {
+        resize();
+    };
+    resize();
+    var aim = {lat:0, lon:0};
+    //刷新场景
+    requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame ||
+            function(callback) {
+                setTimeout(callback, 1000 / 60);
+            };
+    function go() {
+//            c.rotate(0, 0.1, 0).updateT();
+        var _lon = aim.lon;
+        var _lat = aim.lat;
+        if (_lon - c.rotationY > 180) c.rotationY += 360;
+        if (_lon - c.rotationY < -180) c.rotationY -= 360;
+        c.rotationY += (_lon - c.rotationY) * 0.3;
+        c.rotationX += (_lat * 0.3 - c.rotationX) * 0.15;
+        c.updateT();
+        requestAnimationFrame(go);
+    }
+    requestAnimationFrame(go);
+    var orienter = new Orienter();
+    orienter.handler = function (obj) {
+        aim.lat = obj.lat;
+        aim.lon = -obj.lon;
+    };
+    orienter.init();
+
+</script>
+</body>
+
+</html>
